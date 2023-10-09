@@ -15,12 +15,12 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-import torch
+# import torch
 
-from model import Model
-from predict import predict
-from config import CONFIG
-from exception_handler import validation_exception_handler, python_exception_handler
+from model import TestModel
+# from predict import predict
+# from config import CONFIG
+# from exception_handler import validation_exception_handler, python_exception_handler
 from schema import *
 
 # Initialize API Server
@@ -50,59 +50,55 @@ async def startup_event():
     Initialize FastAPI and add variables
     """
 
-    logger.info('Running envirnoment: {}'.format(CONFIG['ENV']))
-    logger.info('PyTorch using device: {}'.format(CONFIG['DEVICE']))
+    # logger.info('Running envirnoment: {}'.format(CONFIG['ENV']))
+    # logger.info('PyTorch using device: {}'.format(CONFIG['DEVICE']))
 
     # Initialize the pytorch model
-    model = Model()
-    model.load_state_dict(torch.load(
-        CONFIG['MODEL_PATH'], map_location=torch.device(CONFIG['DEVICE'])))
-    model.eval()
+    model = TestModel()
+    # model.load_state_dict(torch.load(
+    #     CONFIG['MODEL_PATH'], map_location=torch.device(CONFIG['DEVICE'])))
+    # model.eval()
 
     # add model and other preprocess tools too app state
     app.package = {
-        "scaler": load(CONFIG['SCALAR_PATH']),  # joblib.load
+        # "scaler": load(CONFIG['SCALAR_PATH']),  # joblib.load
         "model": model
     }
 
 
-@app.post('/api/v1/predict',
-          response_model=InferenceResponse,
-          responses={422: {"model": ErrorResponse},
-                     500: {"model": ErrorResponse}}
-          )
-def do_predict(request: Request, body: InferenceInput):
+@app.post('/test')
+def do_predict():
     """
     Perform prediction on input data
     """
 
-    logger.info('API predict called')
-    logger.info(f'input: {body}')
+    # logger.info('API predict called')
+    # logger.info(f'input: {body}')
 
-    # prepare input data
-    X = [body.sepal_length, body.sepal_width,
-         body.petal_length, body.petal_width]
+    # # # prepare input data
+    # # X = [body.sepal_length, body.sepal_width,
+    # #      body.petal_length, body.petal_width]
 
-    # run model inference
-    y = predict(app.package, [X])[0]
+    # # # run model inference
+    # # y = predict(app.package, [X])[0]
 
-    # generate prediction based on probablity
-    pred = ['setosa', 'versicolor', 'virginica'][y.argmax()]
+    # # generate prediction based on probablity
+    # pred = ['setosa', 'versicolor', 'virginica'][y.argmax()]
 
-    # round probablities for json
-    y = y.tolist()
-    y = list(map(lambda v: round(v, ndigits=CONFIG['ROUND_DIGIT']), y))
+    # # round probablities for json
+    # y = y.tolist()
+    # y = list(map(lambda v: round(v, ndigits=CONFIG['ROUND_DIGIT']), y))
 
-    # prepare json for returning
-    results = {
-        'setosa': y[0],
-        'versicolor': y[1],
-        'virginica': y[2],
-        'pred': pred
-    }
+    # # prepare json for returning
+    # results = {
+    #     'setosa': y[0],
+    #     'versicolor': y[1],
+    #     'virginica': y[2],
+    #     'pred': pred
+    # }
 
-    logger.info(f'results: {results}')
-
+    # logger.info(f'results: {results}')
+    results = app.package["model"].test()
     return {
         "error": False,
         "results": results
@@ -121,12 +117,12 @@ def show_about():
 
     return {
         "sys.version": sys.version,
-        "torch.__version__": torch.__version__,
-        "torch.cuda.is_available()": torch.cuda.is_available(),
-        "torch.version.cuda": torch.version.cuda,
-        "torch.backends.cudnn.version()": torch.backends.cudnn.version(),
-        "torch.backends.cudnn.enabled": torch.backends.cudnn.enabled,
-        "nvidia-smi": bash('nvidia-smi')
+        # "torch.__version__": torch.__version__,
+        # "torch.cuda.is_available()": torch.cuda.is_available(),
+        # "torch.version.cuda": torch.version.cuda,
+        # "torch.backends.cudnn.version()": torch.backends.cudnn.version(),
+        # "torch.backends.cudnn.enabled": torch.backends.cudnn.enabled,
+        # "nvidia-smi": bash('nvidia-smi')
     }
 
 

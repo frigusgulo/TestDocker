@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-import torch
+# import torch
 
 
 # Config that serves all environment
@@ -48,7 +48,7 @@ def get_config() -> dict:
     config.update(ENV_CONFIG[ENV])
 
     config['ENV'] = ENV
-    config['DEVICE'] = 'cuda' if torch.cuda.is_available() and config['USE_CUDE_IF_AVAILABLE'] else 'cpu'
+    # config['DEVICE'] = 'cuda' if torch.cuda.is_available() and config['USE_CUDE_IF_AVAILABLE'] else 'cpu'
 
     return config
 

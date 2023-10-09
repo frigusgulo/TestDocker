@@ -1,5 +1,5 @@
-torch
+
 fastapi
 numpy
-os
+uvicorn
 joblib
